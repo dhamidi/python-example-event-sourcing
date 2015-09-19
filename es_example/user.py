@@ -1,3 +1,4 @@
+from collections import namedtuple
 from .errors import ValidationError
 from .events import Event
 
@@ -24,7 +25,7 @@ class User:
 
     def handle_command(self, command):
         try:
-            handler = self.command_handlers[command.name()]
+            handler = self.command_handlers[command.command_name()]
             getattr(self, handler)(command)
         except KeyError:
             pass
@@ -37,28 +38,27 @@ class User:
             raise ValidationError(username="not_unique")
 
         for field in ['name', 'email', 'password', 'username']:
-            if command.params.get(field, '') == '':
+            if getattr(command, field) == '':
                 raise ValidationError(*{field: "required"})
 
         self.events.publish(Event('user.signed-up', {
-            'username': command.params['username'],
+            'username': command.username,
             'aggregate_id': self.id,
-            'password': command.params['password'],
-            'email': command.params['email'],
-            'name': command.params['name'],
+            'password': command.password,
+            'email': command.email,
+            'name': command.name,
         }))
 
         return self
 
 
-class SignUp:
-    Aggregate = User
+SignUp = namedtuple('SignUp', [
+    'username',
+    'password',
+    'email',
+    'name',
+])
 
-    def __init__(self, **payload):
-        self.params = payload
-
-    def name(self):
-        return 'sign-up'
-
-    def aggregate_id(self):
-        return self.params['username']
+SignUp.Aggregate = User
+SignUp.command_name = lambda self: 'sign-up'
+SignUp.aggregate_id = lambda self: self.username
