@@ -36,11 +36,16 @@ class User:
         if self._signed_up:
             raise ValidationError(username="not_unique")
 
+        for field in ['name', 'email', 'password', 'username']:
+            if command.params.get(field, '') == '':
+                raise ValidationError(*{field: "required"})
+
         self.events.publish(Event('user.signed-up', {
             'username': command.params['username'],
             'aggregate_id': self.id,
             'password': command.params['password'],
             'email': command.params['email'],
+            'name': command.params['name'],
         }))
 
         return self

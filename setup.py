@@ -7,6 +7,6 @@ setup(name='es_example',
       author="Dario Hamidi",
       author_email="dario@gowriteco.de",
       license='MIT',
-      install_requires=['nose'],
-      packages=['es_example'],
+      install_requires=['nose', 'bottle'],
+      packages=['es_example', 'es_example.projection'],
 )

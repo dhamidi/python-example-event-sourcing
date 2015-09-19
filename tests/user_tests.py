@@ -16,6 +16,7 @@ def test_User_sign_up_raises_error_if_user_signed_up_already():
     user.handle_command(SignUp(username='the-user',
                                password='secret',
                                email='foo@example.com',
+                               name='John Doe',
     ))
 
 def test_User_sign_up_publishes_an_event():
@@ -24,11 +25,12 @@ def test_User_sign_up_publishes_an_event():
     user.handle_command(SignUp(username='the-user',
                                password='secret',
                                email='foo@example.com',
+                               name="John Doe",
     ))
-
     assert_in(Event('user.signed-up', {
         'aggregate_id': 'the-user',
         'username': 'the-user',
         'password': 'secret',
         'email': 'foo@example.com',
+        'name': "John Doe",
     }), events.published())
